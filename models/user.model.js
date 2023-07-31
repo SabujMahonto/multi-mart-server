@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcrypt");
+
 const userSchema = new mongoose.Schema(
   {
     name: {
@@ -24,11 +25,13 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    occupations: {
+    occupation: {
       type: String,
       required: true,
     },
-    roll: {
+
+    role: {
+      type: String,
       enum: ["user", "seller", "admin"],
       default: "user",
       required: true,
@@ -37,55 +40,62 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-//signUp
-userSchema.static.signUp = async function (
+//signup
+userSchema.statics.signup = async function (
   name,
   email,
   password,
   image,
   address,
-  occupations
+  occupation
 ) {
-  if (!name || !email || !password || !image || !address || !occupations) {
+  if (!name || !email || !password || !image || !address || !occupation) {
     throw new Error("All field must be filled.");
   }
 
-  if (validator.isEmail(email)) {
-    throw new Error("Invalid email ");
+  if (!validator.isEmail(email)) {
+    throw new Error("Invalid email");
   }
-
-  if (validator.isStrongPassword(password)) {
+  if (!validator.isStrongPassword(password)) {
     throw new Error(
-      "Invalid password (must contain 8+ chars uppercase , lowercase number,& symbols)"
+      "Password is not strong(must contain 8+ chars, uppercase, lowercase, number and symbol"
     );
   }
+
   const salt = await bcrypt.genSalt(10);
-  const hashPass = await bcrypt.hash(password, salt);
+  const hashPassword = await bcrypt.hash(password, salt);
+
   const user = await this.create({
     name,
     email,
-    password: hashPass,
+    password: hashPassword,
     image,
     address,
-    occupations,
+    occupation,
   });
+
   return user;
 };
 
-model.exports = mongoose.model("User", userSchema);
+/* LOGIN */
 
-// logIn
-userSchema.static.login = async function (email, password) {
+userSchema.statics.login = async function (email, password) {
   if (!email || !password) {
-    throw new Error("All field must be filled");
+    throw new Error("All field must be filled.");
   }
+
   const user = await this.findOne({ email });
+
   if (!user) {
-    throw new Error("incorrect Email or  Password");
+    throw new Error("Incorrect email or password");
   }
+
   const match = await bcrypt.compare(password, user.password);
   if (!match) {
-    throw new Error("incorrect Email or  Password");
+    throw new Error("Incorrect email or password");
   }
+
   return user;
 };
+
+module.exports = mongoose.model("User", userSchema);

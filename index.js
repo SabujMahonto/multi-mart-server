@@ -6,7 +6,7 @@ const mongoose = require("mongoose");
 //variables
 const port = process.env.PORT || 5000;
 const uri = process.env.MONGO_URI;
-
+const userRoute = require("./routes/user.route");
 //middleware
 const app = new express();
 app.use(express.json());
@@ -21,6 +21,8 @@ app.get("/", (req, res) => {
   res.status(200).json({ message: "welcome to Multi-Mart Server" });
 });
 
+//Bypass api
+app.use("/api/user", userRoute);
 // Mongo DB Database Connection
 mongoose
   .connect(uri, { useUnifiedTopology: true })
