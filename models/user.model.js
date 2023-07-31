@@ -51,12 +51,12 @@ userSchema.static.signUp = async function (
   }
 
   if (validator.isEmail(email)) {
-    throw new Error("Invalid email or password");
+    throw new Error("Invalid email ");
   }
 
   if (validator.isStrongPassword(password)) {
     throw new Error(
-      "Invalid email or password (must contain 8+ chars uppercase , lowercase number,& symbols)"
+      "Invalid password (must contain 8+ chars uppercase , lowercase number,& symbols)"
     );
   }
   const salt = await bcrypt.genSalt(10);
@@ -73,3 +73,19 @@ userSchema.static.signUp = async function (
 };
 
 model.exports = mongoose.model("User", userSchema);
+
+// logIN
+userSchema.static.login = async function (email, password) {
+  if (!email || !password) {
+    throw new Error("All field must be filled");
+  }
+  const user = await this.findOne({ email });
+  if (!user) {
+    throw new Error("incorrect Email or  Password");
+  }
+  const match = await bcrypt.compare(password, user.password);
+  if (!match) {
+    throw new Error("incorrect Email or  Password");
+  }
+  return user;
+};
