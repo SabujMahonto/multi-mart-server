@@ -74,7 +74,7 @@ userSchema.static.signUp = async function (
 
 model.exports = mongoose.model("User", userSchema);
 
-// logIN
+// logIn
 userSchema.static.login = async function (email, password) {
   if (!email || !password) {
     throw new Error("All field must be filled");
