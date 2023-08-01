@@ -1,3 +1,4 @@
+const { createToken } = require("../helpers/token.helpers");
 const User = require("../models/user.model");
 const createUser = async (req, res) => {
   try {
@@ -10,7 +11,8 @@ const createUser = async (req, res) => {
       address,
       occupations
     );
-    res.status(200).json(user);
+    const token = createToken(user._id);
+    res.status(200).json({ user, token });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
