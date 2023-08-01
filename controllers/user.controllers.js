@@ -1,5 +1,6 @@
 const { createToken } = require("../helpers/token.helpers");
 const userModel = require("../models/user.model");
+// create User
 const createUser = async (req, res) => {
   try {
     const { name, email, password, image, address, occupations } = req.body;
@@ -18,6 +19,7 @@ const createUser = async (req, res) => {
   }
 };
 
+// Login User
 const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -29,7 +31,18 @@ const loginUser = async (req, res) => {
   }
 };
 
+// get all User
+const getAllUsers = async (req, res) => {
+  try {
+    const users = await userModel.find({}).sort({ createdAt: -1 });
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
 module.exports = {
   createUser,
   loginUser,
+  getAllUsers,
 };

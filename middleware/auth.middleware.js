@@ -1,23 +1,28 @@
 const jwt = require("jsonwebtoken");
 const userModel = require("../models/user.model");
+
 const isAuthenticated = async (req, res, next) => {
   try {
-    const authHeader = await req.header.authorization;
+    const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer")) {
-      throw new Error("Invalid Token Format");
+      throw new Error("Invalid token format");
     }
-    const token = authHeader.split("")[1];
+
+    const token = authHeader.split(" ")[1];
     if (!token) {
-      throw new Error("No Token Provided");
+      throw new Error("No token provided");
     }
+
     const { id } = jwt.verify(token, process.env.JWT_SECRET);
+
     req.user = await userModel.findById(id);
+
     next();
   } catch (error) {
-    if (Error === "JsonWebTokenError") {
-      res.status(401).json({ error: "invalidToken" });
+    if (error.name === "JsonWebTokenError") {
+      res.status(401).json({ error: "Invalid token" });
     } else {
-      res.status(403).json({ error: "unAuthorized access" });
+      res.status(403).json({ error: "Unauthorized access" });
     }
   }
 };
